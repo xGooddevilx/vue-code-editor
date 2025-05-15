@@ -2,16 +2,34 @@
 import PanelTItle from '@/components/PanelTitle/PanelTItle.vue'
 import { ref } from 'vue'
 import FileIcon from './components/FileIcon/FileIcon.vue'
-interface Files {
+
+interface Folder {
+  _type: 'folder'
+  name: string
+  id: number
+  children: File[]
+}
+interface File {
   name: string
   content: string
   id: number
   language: 'JS' | 'HTML' | 'CSS'
+  _type: 'file'
 }
-const files = ref<Files[]>([
-  { id: 1, name: 'index.html', content: '', language: 'HTML' },
-  { id: 2, name: 'style.css', content: '', language: 'CSS' },
-  { id: 3, name: 'app.js', content: '', language: 'JS' },
+
+const files = ref<(Folder | File)[]>([
+  {
+    id: 1,
+    name: 'folder 1',
+    _type: 'folder',
+    children: [
+      { _type: 'file', id: 1, name: 'index.html', content: '', language: 'HTML' },
+      { _type: 'file', id: 2, name: 'style.css', content: '', language: 'CSS' },
+      { _type: 'file', id: 3, name: 'app.js', content: '', language: 'JS' },
+    ],
+  },
+  { _type: 'file', id: 3, name: 'index.html', content: '', language: 'HTML' },
+  { _type: 'file', id: 4, name: 'index.html', content: '', language: 'HTML' },
 ])
 
 const selectedFile = ref<number | null>(null)
@@ -34,15 +52,24 @@ const handleSelectFile = (id: number) => (selectedFile.value = id)
       </div>
       <div class="mt-5">
         <ul>
-          <li
-            v-for="item in files"
-            :key="item.id"
-            class="px-5 hover:bg-gray-900 cursor-pointer select-none transition-colors"
-            @click="handleSelectFile(item.id)"
-          >
-            <h6 class="text-white flex items-center gap-1">
-              <FileIcon :type="item.language" /> {{ item.name }}
+          <li v-for="item in files" :key="item.id" @click="handleSelectFile(item.id)">
+            <h6
+              class="text-white flex items-center gap-1 px-2 hover:bg-gray-900 cursor-pointer select-none transition-colors"
+            >
+              <FileIcon :type="'language' in item ? item.language : undefined" /> {{ item.name }}
             </h6>
+            <ul v-if="'children' in item">
+              <li
+                v-for="file in item.children"
+                :key="file.id"
+                class="px-5 hover:bg-gray-900 cursor-pointer select-none transition-colors"
+              >
+                <h6 class="text-white flex items-center gap-1">
+                  <FileIcon :type="'language' in file ? file.language : undefined" />
+                  {{ file.name }}
+                </h6>
+              </li>
+            </ul>
           </li>
         </ul>
       </div>

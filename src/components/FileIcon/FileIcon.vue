@@ -4,7 +4,7 @@ import HtmlIcon from './htmlIcon.vue'
 import JsIcon from './jsIcon.vue'
 
 interface Properties {
-  type: 'HTML' | 'JS' | 'CSS'
+  type: 'HTML' | 'JS' | 'CSS' | undefined
 }
 
 const { type } = defineProps<Properties>()
