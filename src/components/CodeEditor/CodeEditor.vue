@@ -1,6 +1,8 @@
+<!-- eslint-disable @typescript-eslint/no-magic-numbers -->
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
 import type { File } from '@/types/types'
+import { reactive } from 'vue'
 
 const props = defineProps<{ file: File }>()
 const emit = defineEmits<(e: 'update:content', value: string) => void>()
@@ -45,11 +47,61 @@ watch(
   async () => nextTick(syncScroll),
 )
 
+interface AutoCompletion {
+  suggestions: string[]
+  caretPosition: number
+  currentWord: string
+}
+const autoCompletion = reactive<AutoCompletion>({
+  caretPosition: 0,
+  currentWord: '',
+  suggestions: [],
+})
+
 // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 const onInput = (e: Event) => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   const target = e.target as HTMLTextAreaElement
-  emit('update:content', target.value)
+  const { value } = target
+  const caret = target.selectionStart || 0
+  autoCompletion.caretPosition = caret
+
+  emit('update:content', value)
+
+  const beforeCaret = value.slice(0, caret)
+
+  const match = /[\w.]+$/.exec(beforeCaret)
+  autoCompletion.currentWord = match ? match[0] : ''
+
+  if (autoCompletion.currentWord.length > 0) {
+    autoCompletion.suggestions = keywords.filter((kw) => kw.startsWith(autoCompletion.currentWord))
+  } else {
+    autoCompletion.suggestions = []
+  }
+}
+
+const applySuggestion = (suggestion: string) => {
+  const textarea = textareaRef.value
+  if (!textarea) return
+
+  const { value } = textarea
+
+  const { caretPosition: caret, currentWord: cursorWord } = autoCompletion
+  const start = caret - cursorWord.length
+  const end = caret
+
+  const newValue = value.slice(0, start) + suggestion + value.slice(end)
+  emit('update:content', newValue)
+
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  nextTick(() => {
+    textarea.focus()
+    const newCaret = start + suggestion.length
+    textarea.setSelectionRange(newCaret, newCaret)
+  })
+
+  autoCompletion.suggestions = []
+  autoCompletion.currentWord = ''
 }
 </script>
 
@@ -68,5 +120,19 @@ const onInput = (e: Event) => {
       @input="onInput"
       @scroll="syncScroll"
     ></textarea>
+    <ul
+      v-if="autoCompletion.suggestions.length"
+      class="absolute z-10 bg-gray-800 border border-gray-600 rounded text-white text-sm mt-1 w-64 shadow-md"
+      :style="{ top: '3rem', left: '1rem' }"
+    >
+      <li
+        v-for="(s, i) in autoCompletion.suggestions"
+        :key="i"
+        class="px-2 py-1 cursor-pointer hover:bg-gray-600"
+        @mousedown.prevent="applySuggestion(s)"
+      >
+        {{ s }}
+      </li>
+    </ul>
   </div>
 </template>
