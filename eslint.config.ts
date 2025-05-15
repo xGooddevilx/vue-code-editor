@@ -23,6 +23,7 @@ export default defineConfigWithVueTs(
     rules: {
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/naming-convention': 'off',
+      'vue/no-v-html': 'off',
     },
   },
 )
