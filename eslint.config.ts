@@ -24,6 +24,10 @@ export default defineConfigWithVueTs(
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/naming-convention': 'off',
       'vue/no-v-html': 'off',
+      '@typescript-eslint/strict-boolean-expressions': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/prefer-readonly-parameter-types': 'off',
+      '@typescript-eslint/no-unsafe-type-assertion': 'off',
     },
   },
 )
