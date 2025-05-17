@@ -1,16 +1,16 @@
 <!-- eslint-disable @typescript-eslint/no-magic-numbers -->
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { computed, watch, nextTick } from 'vue'
 import type { File } from '@/types/types'
 import { reactive } from 'vue'
 import { keywords } from '@/constants/Keywords'
+import { useTemplateRef } from 'vue'
 
 const props = defineProps<{ file: File }>()
 const emit = defineEmits<(e: 'update:content', value: string) => void>()
 
-const textareaRef = ref<HTMLTextAreaElement | null>(null)
-const highlightRef = ref<HTMLElement | null>(null)
-
+const textareaRef = useTemplateRef<HTMLTextAreaElement>('textarea-ref')
+const highlightRef = useTemplateRef<HTMLElement | null>('highlight-ref')
 const keywordRegex = new RegExp(`\\b(${keywords.join('|')})\\b`, 'g')
 
 const escapeHTML = (str: string) =>
@@ -91,12 +91,12 @@ const applySuggestion = (suggestion: string) => {
   <div class="relative h-full p-2">
     <h3 class="text-white mb-2">{{ file.name }}</h3>
     <pre
-      ref="highlightRef"
+      ref="highlight-ref"
       class="absolute inset-0 text-white bg-gray-800 whitespace-pre-wrap font-mono overflow-auto pointer-events-none p-2"
       v-html="highlightedContent"
     ></pre>
     <textarea
-      ref="textareaRef"
+      ref="textarea-ref"
       :value="file.content"
       class="absolute inset-0 bg-transparent text-transparent caret-white font-mono resize-none w-full h-full overflow-auto p-2"
       @input="onInput"

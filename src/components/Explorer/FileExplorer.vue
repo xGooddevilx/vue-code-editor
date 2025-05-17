@@ -31,7 +31,7 @@ const emit = defineEmits<{
 
     <button
       class="px-2 py-1 text-white bg-neutral-600 w-full cursor-pointer"
-      @click="$emit('create')"
+      @click="emit('create')"
     >
       Create
     </button>
@@ -41,7 +41,7 @@ const emit = defineEmits<{
       :key="item.id"
       :file="item"
       :is-folder-expanded="isFolderExpanded"
-      @select="$emit('select', $event)"
+      @select="emit('select', $event)"
     />
   </div>
 </template>
