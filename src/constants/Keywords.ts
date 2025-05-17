@@ -1,0 +1,16 @@
+export const keywords = [
+  'function',
+  'const',
+  'let',
+  'var',
+  'if',
+  'else',
+  'return',
+  'console\\.log',
+  'while',
+  'for',
+  '=>',
+  'true',
+  'false',
+  'null',
+] as const
