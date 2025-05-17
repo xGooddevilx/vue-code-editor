@@ -5,7 +5,8 @@ import FileExplorer from './components/Explorer/FileExplorer.vue'
 import { useFileSystem } from './composables/useFileSystem'
 import CodeEditor from './components/CodeEditor/CodeEditor.vue'
 
-const { createNewItem, files, handleFileClick, newFileName, selectedFile } = useFileSystem()
+const { createNewItem, files, handleFileClick, newFileName, selectedFile, isFolderExpanded } =
+  useFileSystem()
 </script>
 
 <template>
@@ -19,6 +20,7 @@ const { createNewItem, files, handleFileClick, newFileName, selectedFile } = use
     <FileExplorer
       v-model:new-file-name="newFileName"
       :files="files"
+      :is-folder-expanded="isFolderExpanded"
       @create="createNewItem"
       @select="handleFileClick"
     />

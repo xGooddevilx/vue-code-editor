@@ -37,10 +37,24 @@ export const useFileSystem = () => {
   const selectedFile = ref<File | null>(null)
   const newFileName = ref('')
 
+  const currentFolderId = ref<string | number | null>(null)
+  const extendedFoldersId = ref<Set<string | number>>(new Set())
+
   // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-  const handleFileClick = (file: File) => {
-    selectedFile.value = file
+  const handleFileClick = (item: File | FileSystem) => {
+    if (item._type === 'file') {
+      selectedFile.value = item
+    } else {
+      if (extendedFoldersId.value.has(item.id)) {
+        extendedFoldersId.value.delete(item.id)
+      } else {
+        currentFolderId.value = item.id
+        extendedFoldersId.value.add(item.id)
+      }
+    }
   }
+
+  const isFolderExpanded = (id: string | number) => extendedFoldersId.value.has(id)
 
   const createNewItem = () => {
     const name = newFileName.value.trim()
@@ -77,5 +91,8 @@ export const useFileSystem = () => {
     newFileName,
     handleFileClick,
     createNewItem,
+    currentFolderId,
+    extendedFoldersId,
+    isFolderExpanded,
   }
 }

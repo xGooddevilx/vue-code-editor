@@ -6,11 +6,12 @@ import ExplorerMenu from './ExplorerMenu.vue'
 defineProps<{
   files: (FileSystem | File)[]
   newFileName: string
+  isFolderExpanded: (id: string | number) => boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'create'): void
-  (e: 'select', file: File): void
+  (e: 'select', file: File | FileSystem): void
   (e: 'update:newFileName', value: string): void
 }>()
 </script>
@@ -39,6 +40,7 @@ const emit = defineEmits<{
       v-for="item in files"
       :key="item.id"
       :file="item"
+      :is-folder-expanded="isFolderExpanded"
       @select="$emit('select', $event)"
     />
   </div>
