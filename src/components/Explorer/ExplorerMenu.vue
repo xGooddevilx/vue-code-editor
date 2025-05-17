@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import FileIcon from '../FileIcon/FileIcon.vue'
+import AngleIcon from './angleIcon.vue'
 import type { File, FileSystem } from '@/types/types'
+import { cn } from '@/utils/cn'
 
 interface Properties {
   file: FileSystem | File
@@ -12,7 +14,6 @@ const { file, isFolderExpanded } = defineProps<Properties>()
 // eslint-disable-next-line @typescript-eslint/no-magic-numbers
 const hasChildren = computed(() => file._type === 'folder' && file.children.length > 0)
 
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 const emit = defineEmits<(e: 'select', file: File | FileSystem) => void>()
 
 const folderIsExpanded = computed(() =>
@@ -25,10 +26,20 @@ const folderIsExpanded = computed(() =>
     <ul>
       <li>
         <h6
-          class="text-white flex items-center gap-1 px-2 hover:bg-gray-900 cursor-pointer select-none transition-colors"
+          :class="
+            cn(
+              'text-white flex items-center gap-1 px-2 hover:bg-gray-900 cursor-pointer select-none transition-colors',
+              { 'bg-gray-500': folderIsExpanded },
+            )
+          "
           @click="emit('select', file)"
         >
-          <FileIcon :type="file._type === 'file' ? file.language : 'folder'" /> {{ file.name }}
+          <FileIcon :type="file._type === 'file' ? file.language : 'folder'" />
+          {{ file.name }}
+          <AngleIcon
+            v-if="file._type === 'folder'"
+            :class="cn('size-2 ms-2 -rotate-90', { 'rotate-0': folderIsExpanded })"
+          />
         </h6>
       </li>
       <ul v-if="hasChildren && folderIsExpanded" class="pl-2">

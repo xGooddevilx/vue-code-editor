@@ -1,7 +1,6 @@
 import { ref } from 'vue'
 import type { File, FileSystem, Language } from '@/types/types'
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useFileSystem = () => {
   const defaultFiles = ref<(FileSystem | File)[]>([
     {
@@ -40,8 +39,9 @@ export const useFileSystem = () => {
   const currentFolderId = ref<string | number | null>(null)
   const extendedFoldersId = ref<Set<string | number>>(new Set())
 
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
   const handleFileClick = (item: File | FileSystem) => {
+    currentFolderId.value = null
+
     if (item._type === 'file') {
       selectedFile.value = item
     } else {
@@ -56,6 +56,16 @@ export const useFileSystem = () => {
 
   const isFolderExpanded = (id: string | number) => extendedFoldersId.value.has(id)
 
+  const addToFolder = (newItem: File | FileSystem, folderId: string | number) => {
+    defaultFiles.value = defaultFiles.value.map((item) => {
+      if (item.id === folderId && item._type === 'folder') {
+        return { ...item, children: [...item.children, newItem] }
+      } else {
+        return item
+      }
+    })
+  }
+
   const createNewItem = () => {
     const name = newFileName.value.trim()
     if (!name) return
@@ -63,25 +73,26 @@ export const useFileSystem = () => {
     const allowedLanguages: Language[] = ['js', 'html', 'css']
     const extension = name.split('.').pop()?.toLowerCase()
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-    if (extension != null && allowedLanguages.includes(extension as Language)) {
-      defaultFiles.value.push({
-        _type: 'file',
-        id: crypto.randomUUID(),
-        name,
-        content: '',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-        language: extension as Language,
-      })
+    const isFile = extension != null && allowedLanguages.includes(extension as Language)
+    const newItem: File | FileSystem = isFile
+      ? {
+          _type: 'file' as const,
+          id: crypto.randomUUID(),
+          name,
+          content: '',
+          language: extension as Language,
+        }
+      : {
+          _type: 'folder' as const,
+          id: crypto.randomUUID(),
+          name,
+          children: [],
+        }
+    if (currentFolderId.value !== null && currentFolderId.value) {
+      addToFolder(newItem, currentFolderId.value)
     } else {
-      defaultFiles.value.push({
-        _type: 'folder',
-        id: crypto.randomUUID(),
-        name,
-        children: [],
-      })
+      defaultFiles.value.push(newItem)
     }
-
     newFileName.value = ''
   }
 

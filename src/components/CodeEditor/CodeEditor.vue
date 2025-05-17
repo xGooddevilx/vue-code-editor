@@ -3,29 +3,13 @@
 import { ref, computed, watch, nextTick } from 'vue'
 import type { File } from '@/types/types'
 import { reactive } from 'vue'
+import { keywords } from '@/constants/Keywords'
 
 const props = defineProps<{ file: File }>()
 const emit = defineEmits<(e: 'update:content', value: string) => void>()
 
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const highlightRef = ref<HTMLElement | null>(null)
-
-const keywords = [
-  'function',
-  'const',
-  'let',
-  'var',
-  'if',
-  'else',
-  'return',
-  'console\\.log',
-  'while',
-  'for',
-  '=>',
-  'true',
-  'false',
-  'null',
-] as const
 
 const keywordRegex = new RegExp(`\\b(${keywords.join('|')})\\b`, 'g')
 
@@ -58,9 +42,7 @@ const autoCompletion = reactive<AutoCompletion>({
   suggestions: [],
 })
 
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 const onInput = (e: Event) => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   const target = e.target as HTMLTextAreaElement
   const { value } = target
   const caret = target.selectionStart || 0
@@ -126,12 +108,12 @@ const applySuggestion = (suggestion: string) => {
       :style="{ top: '3rem', left: '1rem' }"
     >
       <li
-        v-for="(s, i) in autoCompletion.suggestions"
+        v-for="(suggestion, i) in autoCompletion.suggestions"
         :key="i"
         class="px-2 py-1 cursor-pointer hover:bg-gray-600"
-        @mousedown.prevent="applySuggestion(s)"
+        @mousedown.prevent="applySuggestion(suggestion)"
       >
-        {{ s }}
+        {{ suggestion }}
       </li>
     </ul>
   </div>
